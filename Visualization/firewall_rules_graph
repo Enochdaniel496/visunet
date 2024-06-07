@@ -1,0 +1,18 @@
+// Firewall Rules
+digraph {
+	"192.168.1.1" [label="192.168.1.1"]
+	"192.168.1.2" [label="192.168.1.2"]
+	"192.168.1.1" -> "192.168.1.2" [label="TCP any->80 ACCEPT" color=green style=solid]
+	"192.168.1.1" [label="192.168.1.1"]
+	"192.168.1.3" [label="192.168.1.3"]
+	"192.168.1.1" -> "192.168.1.3" [label="TCP any->443 DENY" color=red style=dashed]
+	"192.168.1.4" [label="192.168.1.4"]
+	"192.168.1.2" [label="192.168.1.2"]
+	"192.168.1.4" -> "192.168.1.2" [label="UDP any->53 ACCEPT" color=green style=solid]
+	"192.168.1.5" [label="192.168.1.5"]
+	"192.168.1.6" [label="192.168.1.6"]
+	"192.168.1.5" -> "192.168.1.6" [label="TCP any->22 ACCEPT" color=green style=solid]
+	"192.168.1.7" [label="192.168.1.7"]
+	"192.168.1.8" [label="192.168.1.8"]
+	"192.168.1.7" -> "192.168.1.8" [label="UDP any->161 DENY" color=red style=dashed]
+}

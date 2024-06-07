@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 """
@@ -22,6 +23,7 @@ from io import StringIO
 import pandas as pd
 import streamlit as st
 from policyanalyzer import Policy, PolicyAnalyzer, Packet
+from graphviz import Digraph
 
 EXAMPE_RULES = """protocol,src,s_port,dst,d_port,action
 tcp,140.192.37.20,any,0.0.0.0/0,80,deny

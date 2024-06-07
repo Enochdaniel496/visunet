@@ -1,4 +1,4 @@
-﻿protocol,src,s_port,dest,d_port,action
+﻿protocol,src,s_port,dst,d_port,action
 icmp,any,any,any,5,deny
 udp,117.186.185.0/24,any,117.186.185.0/24,3784,permit
 udp,117.186.185.0/24,any,117.186.185.0/24,3785,permit
