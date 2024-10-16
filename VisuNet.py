@@ -1,28 +1,7 @@
-
-# -*- coding: utf-8 -*-
-
-"""
-Copyright 2022 Maen Artimy
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
-
-# A treamlit app that demonstrates the use of firewall policy analyzer
-
 from io import StringIO
 import pandas as pd
 import streamlit as st
-from policyanalyzer import Policy, PolicyAnalyzer, Packet
+from PolicyAnalysis import Policy, PolicyAnalysis, Packet
 from graphviz import Digraph
 
 EXAMPE_RULES = """protocol,src,s_port,dst,d_port,action
@@ -53,7 +32,7 @@ DEF_RYD = """A rule (Y) is redundant if it performs the same action on the
 same packets as a preceding rule (X), and if rule (X) can match all the packets
 that match rule (Y)."""
 
-DEF_SHD = """A rule (Y) is shadowed by a previous rule (X) if the they have
+DEF_SHD = """A rule (Y) is shadowed by a previous rule (X) if they have
 different actions, and if rule (X) matches all the packets that match rule (Y),
 such that the rule (Y) will never be reached."""
 
@@ -94,23 +73,21 @@ desc = {
     },
 }
 
-TITLE = "Firewall Policy Analyzer"
-ABOUT = """This app analyzes a set of firewall policies and detects any anomalies.\n
-:warning: This is work in progress. Use at your own risk. :warning:"""
+TITLE = "VisuNet"
+ABOUT = """This app analyzes a set of firewall policies to detect anomalies :warning:, visualizes these  anomalies :warning:, and provides recommendations for policy adjustments.."""
 NO_RELATION = ":heavy_check_mark: No anomalies detected."
 EXAMPLE_HELP = "Use built-in example file to demo the app."
 SELECT_RULES = "Select rules to review relationships."
 UPLOAD_FILE = "Upload a file"
 
 packet_fields = ["protocol", "src", "s_port", "dst", "d_port"]
-errors = ["SHD", "RYD", "RXD"]
+anomalies = ["SHD", "RYD", "RXD"]
 warn = ["COR"]
 
 
-def color_erros(val):
-    """Return style color for errors and warnnings"""
-
-    fcolor = "red" if val in errors else "orange" if val in warn else None
+def color_anomalies(val):
+    #Return style color for anomalies and warnnings
+    fcolor = "red" if val in anomalies else "orange" if val in warn else None
     # bcolor = 'red' if val in errors else 'orange' if val in warn else None
     # style = f'background-color: {bcolor};' if bcolor else ''
     style = f"color: {fcolor};" if fcolor else ""
@@ -118,8 +95,7 @@ def color_erros(val):
 
 
 def to_dict(rel_dict):
-    """Convert anomalies lists to dictionary"""
-
+    #Convert anomalies lists to dictionary
     my_dict = {}
     for r_item in rel_dict:
         sub_dict = {}
@@ -130,8 +106,7 @@ def to_dict(rel_dict):
 
 
 def convert_df(data_frame):
-    """convert dataframe to csv"""
-
+    #convert dataframe to csv
     return data_frame.to_csv(index=False).encode("utf-8")
 
 
@@ -158,6 +133,7 @@ st.set_page_config(layout="wide")
 st.title(TITLE)
 with st.expander("About", expanded=False):
     st.markdown(ABOUT)
+
 
 try:
     # The firewall rules sources can be a file, a hardcoded example, or modified
@@ -206,7 +182,7 @@ try:
         selected_columns = reader[packet_fields + ["action"]]
         rules = selected_columns.values.tolist()
         policies = [Policy(*r) for r in rules]
-        analyzer = PolicyAnalyzer(policies)
+        analyzer = PolicyAnalysis(policies)
         # Find relations among firewall rules
         anom = analyzer.get_anomalies()
         anom_dict = to_dict(anom)
@@ -226,9 +202,8 @@ try:
             .fillna("")
         )
 
-        ## Summary Section
-
-        st.header("Summary")
+        ## Anomalies Detected in the policies and Visualized in a data frame
+        st.header("Anomalies Detected :warning:")
         if not pdr.empty:
             st.write("Relationship count:")
 
@@ -249,8 +224,8 @@ try:
 
             hide_gen = st.checkbox("Hide Generalizations", value=False)
             if hide_gen:
-                pdr = pdr.applymap(lambda x: x.replace("GEN", ""))
-            st.dataframe(pdr.style.applymap(color_erros), use_container_width=True)
+                pdr = pdr.map(lambda x: x.replace("GEN", ""))
+            st.dataframe(pdr.style.map(color_anomalies), use_container_width=True)
 
         else:
             st.markdown(NO_RELATION)
@@ -258,7 +233,7 @@ try:
         ## Analysis Section
 
         # If relations are detected
-        st.header("Analysis")
+        st.header("Policy Analysis")
         if len(anom_dict) > 0:
             st.write(SELECT_RULES)
             col1, col2 = st.columns(2)
@@ -282,7 +257,7 @@ try:
                     use_container_width=True,
                 )
 
-                # Display the discription of relations and recommendations
+                # Display the description of relations and recommendations
                 acode = anom_dict[y_rule][x_rule]
                 xy_rel = desc[acode]["long"]
                 xy_short = desc[acode]["short"]
@@ -294,13 +269,12 @@ try:
                 st.markdown(xy_desc)
                 with st.expander("Definition", expanded=False):
                     st.markdown(xy_def)
-                st.markdown("#### Recommendation")
+                st.markdown("#### Policy Adjustment Recommendation")
                 st.markdown(xy_recom)
 
             ## Editing Section
-
-            if acode in errors:
-                # Offer to apply recommendation to correct errors
+            if acode in anomalies:
+                # Offer to apply recommendation to correct anomalies
                 placeholder = st.empty()
                 apply = placeholder.button(
                     "Apply Recommendation", disabled=False, key=1
@@ -332,7 +306,7 @@ try:
                     st.session_state["edited"] = csv.decode("utf-8")
 
                     # Run the app from the top (this may not be neccessary)
-                    st.experimental_rerun()
+                    st.rerun()
 
         else:
             st.markdown(NO_RELATION)
@@ -362,7 +336,7 @@ try:
                     analyzer,
                 )
                 st.session_state["packets"] = editor_value
-                st.experimental_rerun()
+                st.rerun()
         else:
             st.session_state.pop("packets", None)
 

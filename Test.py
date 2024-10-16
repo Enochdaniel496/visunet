@@ -11,22 +11,20 @@ firewall_rules = [
     {'protocol': 'tcp', 'src': '140.192.37.30', 's_port': 'any', 'dst': '0.0.0.0/0', 'd_port': '21', 'action': 'deny', 'type': 'normal'},
     {'protocol': 'tcp', 'src': '140.192.37.0/24', 's_port': 'any', 'dst': '0.0.0.0/0', 'd_port': '21', 'action': 'accept', 'type': 'generalization'},
     {'protocol': 'tcp', 'src': '140.192.37.0/24', 's_port': 'any', 'dst': '161.120.33.40', 'd_port': '21', 'action': 'accept', 'type': 'normal'},
+    {'protocol': 'tcp', 'src': '0.0.0.0/0', 's_port': 'any', 'dst': '0.0.0.0/0', 'd_port': 'any', 'action': 'deny', 'type': 'normal'},
     {'protocol': 'udp', 'src': '140.192.37.0/24', 's_port': 'any', 'dst': '161.120.33.40', 'd_port': '53', 'action': 'accept', 'type': 'normal'},
     {'protocol': 'udp', 'src': '0.0.0.0/0', 's_port': 'any', 'dst': '161.120.33.40', 'd_port': '53', 'action': 'accept', 'type': 'redundancy'},
     {'protocol': 'udp', 'src': '140.192.38.0/24', 's_port': 'any', 'dst': '161.120.35.0/24', 'd_port': 'any', 'action': 'accept', 'type': 'normal'},
-    {'protocol': 'tcp', 'src': '192.168.0.0/24', 's_port': 'any', 'dst': '10.0.0.0/24', 'd_port': '22', 'action': 'accept', 'type': 'normal'},
-    {'protocol': 'tcp', 'src': '192.168.0.1', 's_port': 'any', 'dst': '10.0.0.1', 'd_port': '22', 'action': 'deny', 'type': 'correlation'},
-    {'protocol': 'tcp', 'src': '192.168.1.0/24', 's_port': 'any', 'dst': '10.0.0.2', 'd_port': '443', 'action': 'accept', 'type': 'normal'},
-    {'protocol': 'udp', 'src': '192.168.1.0/24', 's_port': 'any', 'dst': '10.0.0.2', 'd_port': '443', 'action': 'deny', 'type': 'shadowing'},
-    {'protocol': 'tcp', 'src': '192.168.2.0/24', 's_port': 'any', 'dst': '10.0.1.0/24', 'd_port': '80', 'action': 'accept', 'type': 'normal'},
-    {'protocol': 'tcp', 'src': '192.168.2.1', 's_port': 'any', 'dst': '10.0.1.1', 'd_port': '80', 'action': 'deny', 'type': 'generalization'},
+    {'protocol': 'udp', 'src': '0.0.0.0/0', 's_port': 'any', 'dst': '0.0.0.0/0', 'd_port': 'any', 'action': 'deny', 'type': 'normal'},
+    {'protocol': 'ip', 'src': '0.0.0.0/0', 's_port': 'any', 'dst': '0.0.0.0/0', 'd_port': 'any', 'action': 'deny', 'type': 'normal'},
 ]
+
 
 def visualize_firewall_rules(rules):
     dot = Digraph(comment='Firewall Rules')
 
     # Increase the size of the graph area
-    dot.attr(size='10,10')
+    dot.attr(size='1000,100')
 
     for rule in rules:
         src = rule['src']

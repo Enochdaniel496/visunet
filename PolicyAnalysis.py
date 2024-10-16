@@ -1,31 +1,10 @@
-# -*- coding: utf-8 -*-
-
-"""
-Copyright 2021-2022 Maen Artimy
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
-
-
 import ipaddress
 from definitions import RRule, RField, Anomaly
 
 
 class Port:
-    """
-    A TCP/UDP Port
-    """
 
+    # A TCP/UDP Port
     def __init__(self, port):
         # Do not use this construtor directly, use get_port() instead
         self.port = port
@@ -50,10 +29,8 @@ class Port:
 
 
 class Protocol:
-    """
-    A Protcol
-    """
 
+    #A Protcol
     _protocols = [
         "ICMP",
         "IGMP",
@@ -70,6 +47,7 @@ class Protocol:
     ]
 
     def __init__(self, protocol):
+
         # Do not use this construtor directly, use get_protocol() instead
         self.protocol = protocol.upper()
 
@@ -94,10 +72,8 @@ class Protocol:
 
 
 class Address:
-    """
-    An IPv4 Address
-    """
 
+    #An IPv4 Address
     @classmethod
     def get_address(cls, address):
         if address == "any":
@@ -106,9 +82,7 @@ class Address:
 
 
 def compare_fields(a, b):
-    """
-    get relation between two policy fields
-    """
+    # get relation between two policy fields
     relation = RField.UNEQUAL
     if a == b:
         relation = RField.EQUAL
@@ -120,10 +94,8 @@ def compare_fields(a, b):
 
 
 def compare_addresses(a, b):
-    """
-    Get relation between two policy fields representing IP addresses
-    """
-
+    
+    #Get relation between two policy fields representing IP addresses
     relation = RField.UNEQUAL
     if a == b:
         relation = RField.EQUAL
@@ -135,10 +107,8 @@ def compare_addresses(a, b):
 
 
 class Packet:
-    """
-    Packet header information
-    """
-
+    
+    # Packet header information
     def __init__(self, protocol, src, s_port, dst, d_port):
         self.fields = {
             "protocol": Protocol.get_protocol(protocol.strip()),
@@ -153,10 +123,8 @@ class Packet:
 
 
 class Policy(Packet):
-    """
-    Firewall Policy
-    """
 
+    # Firewall Policy
     def __init__(self, protocol, src, s_port, dst, d_port, action):
         super().__init__(protocol, src, s_port, dst, d_port)
         self.action = action
@@ -175,11 +143,10 @@ class Policy(Packet):
         return self.action == other.action
 
     def get_rule_relation(self, other):
-        """
-        The fields list include comparsions between corrosponding fields
-        in two rules.
-        The method returns the resulting relationship between two rule.
-        """
+        
+        # The fields list include comparsions between corrosponding fields
+        # in two rules.
+        # The method returns the resulting relationship between two rule.
 
         fields = self.compare_fields(other)
         relation = None
@@ -213,12 +180,9 @@ class Policy(Packet):
         return ",".join(map(str, self.fields.values())) + "," + self.action
 
 
-class PolicyAnalyzer:
-    """
-    Firewall Policy Analyzer
-    """
-
-    anamoly = {
+class PolicyAnalysis:
+# Firewall policies Analysis to detect anomalies
+    anomaly = {
         (RRule.IMB, False): Anomaly.GEN,
         (RRule.IMP, False): Anomaly.SHD,
         (RRule.CC, False): Anomaly.COR,
@@ -230,8 +194,8 @@ class PolicyAnalyzer:
     def __init__(self, policies):
         self.policies = policies
 
-    def _get_anamoly(self, rule_relation, same_action):
-        return self.anamoly.get((rule_relation, same_action), Anomaly.AOK)
+    def _get_anomaly(self, rule_relation, same_action):
+        return self.anomaly.get((rule_relation, same_action), Anomaly.AOK)
 
     def get_relations(self):
         # compare each policy with the previous ones
@@ -259,8 +223,8 @@ class PolicyAnalyzer:
 
         for ry, ry_relations in rule_relations.items():
             for rx, relation in ry_relations:
-                anamoly = self._get_anamoly(relation, a_relations[ry][rx])
-                if anamoly is Anomaly.RXD:
+                anomaly = self._get_anomaly(relation, a_relations[ry][rx])
+                if anomaly is Anomaly.RXD:
                     # check the rules in between for additional conditions
                     for rz in range(rx + 1, ry):
                         if any(
@@ -269,10 +233,10 @@ class PolicyAnalyzer:
                             and b in [RRule.CC, RRule.IMB]
                             for a, b in rule_relations[rz]
                         ):
-                            anamoly = Anomaly.AOK
+                            anomaly = Anomaly.AOK
                             break
-                if anamoly is not Anomaly.AOK:
-                    anomalies.setdefault(ry, []).append((rx, anamoly))
+                if anomaly is not Anomaly.AOK:
+                    anomalies.setdefault(ry, []).append((rx, anomaly))
         return anomalies
 
     def get_first_match(self, packet):
