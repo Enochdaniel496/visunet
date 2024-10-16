@@ -24,7 +24,7 @@ def visualize_firewall_rules(rules):
     dot = Digraph(comment='Firewall Rules')
 
     # Increase the size of the graph area
-    dot.attr(size='1000,100')
+    dot.attr(size='5000,100')
 
     for rule in rules:
         src = rule['src']
